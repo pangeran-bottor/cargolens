@@ -1,0 +1,16 @@
+# env / secrets — never commit
+.env
+.env.*
+!.env.example
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# generated database (rebuilt from CSV at startup)
+backend/data/logistics.db
+
+# node / next
+node_modules/
+.next/
