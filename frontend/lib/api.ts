@@ -33,6 +33,36 @@ async function get<T>(path: string): Promise<T> {
 
 export const getKpis = () => get<Kpis>("/api/kpis");
 
+export interface ToolResult {
+  tool: string;
+  rows: QueryRow[];
+  explain: QueryResult["explain"];
+  suggested_chart: QueryResult["suggested_chart"];
+}
+
+export interface ChatResponse {
+  answer: string | null;
+  results: ToolResult[];
+  error: string | null;
+}
+
+export async function askQuestion(question: string): Promise<ChatResponse> {
+  const res = await fetch(`${API_URL}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
+  if (res.status === 429) {
+    return {
+      answer: null,
+      results: [],
+      error: "Rate limit reached — please wait a minute and try again.",
+    };
+  }
+  if (!res.ok) throw new Error(`/api/chat → ${res.status}`);
+  return res.json();
+}
+
 export async function runQuery(spec: object): Promise<QueryResult> {
   const res = await fetch(`${API_URL}/api/query`, {
     method: "POST",

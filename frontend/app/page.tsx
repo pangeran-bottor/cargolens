@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import Chat from "@/components/Chat";
 import KpiCards from "@/components/KpiCards";
 import { CarrierChart, PerformanceChart, VolumeChart } from "@/components/charts";
 import { getKpis, Kpis, QueryRow, runQuery } from "@/lib/api";
@@ -67,7 +68,10 @@ export default function Home() {
         {volume.length > 0 && <VolumeChart rows={volume} />}
         {perf.length > 0 && <PerformanceChart rows={perf} />}
       </div>
-      {carriers.length > 0 && <CarrierChart rows={carriers} />}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {carriers.length > 0 && <CarrierChart rows={carriers} />}
+        <Chat />
+      </div>
     </main>
   );
 }
