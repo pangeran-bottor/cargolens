@@ -26,6 +26,37 @@ export function DynamicChart({ result }: { result: ToolResult }) {
     );
   }
 
+  if (suggested_chart === "forecast") {
+    return (
+      <div className="h-56 rounded-lg border border-slate-200 bg-white p-2">
+        <ResponsiveContainer>
+          <LineChart data={rows}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" fontSize={11} />
+            <YAxis fontSize={11} allowDecimals={false} />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="historical"
+              name="historical"
+              stroke="#2563eb"
+              dot={false}
+              isAnimationActive={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="forecast"
+              name="forecast"
+              stroke="#f59e0b"
+              strokeDasharray="6 4"
+              isAnimationActive={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
   const dimension = Object.keys(rows[0]).find((k) => k !== "value");
 
   if (suggested_chart === "number" || !dimension) {

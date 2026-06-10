@@ -15,6 +15,7 @@ import os
 import anthropic
 from pydantic import ValidationError
 
+from .forecast import ForecastSpec, run_forecast
 from .queries import QuerySpec, dataset_meta, run_query
 
 MODEL = os.environ.get("CHAT_MODEL", "claude-sonnet-4-6")
@@ -76,6 +77,21 @@ _QUERY_TOOL = {
     "input_schema": QuerySpec.model_json_schema(),
 }
 
+_FORECAST_TOOL = {
+    "name": "forecast_demand",
+    "description": (
+        "Forecast future monthly demand (units = sum of quantity) and get an "
+        "inventory recommendation. Use for questions about predicting demand, "
+        "future sales, or how much inventory/stock to plan. Forecasts at "
+        "product-category level; if the user asks about a specific SKU, pass "
+        "the sku field and it is rolled up to its category (per-SKU history "
+        "is too sparse — the tool explains this in its output). Returns "
+        "historical + forecast series, the recommendation, and methodology — "
+        "include the roll-up note, recommendation and methodology in your answer."
+    ),
+    "input_schema": ForecastSpec.model_json_schema(),
+}
+
 
 def _execute_tool(name: str, tool_input: dict) -> tuple[dict | None, str | None]:
     """Validate and run a tool call. Returns (result, error)."""
@@ -85,6 +101,12 @@ def _execute_tool(name: str, tool_input: dict) -> tuple[dict | None, str | None]
         except ValidationError as e:
             return None, f"Invalid query spec: {e.error_count()} error(s): {e.errors()[:3]}"
         return run_query(spec), None
+    if name == "forecast_demand":
+        try:
+            fspec = ForecastSpec.model_validate(tool_input)
+        except ValidationError as e:
+            return None, f"Invalid forecast spec: {e.error_count()} error(s): {e.errors()[:3]}"
+        return run_forecast(fspec), None
     return None, f"Unknown tool: {name}"
 
 
@@ -105,7 +127,7 @@ def answer_question(question: str) -> dict:
                 model=MODEL,
                 max_tokens=1000,
                 system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
-                tools=[_QUERY_TOOL],
+                tools=[_QUERY_TOOL, _FORECAST_TOOL],
                 messages=messages,
             )
 
@@ -133,10 +155,13 @@ def answer_question(question: str) -> dict:
                         "explain": result["explain"],
                         "suggested_chart": result["suggested_chart"],
                     })
+                    content = str(result["rows"])
+                    if result.get("answer_notes"):
+                        content += "\nNOTES: " + " | ".join(result["answer_notes"])
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": block.id,
-                        "content": str(result["rows"]),
+                        "content": content,
                     })
             messages.append({"role": "user", "content": tool_results})
 

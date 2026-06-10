@@ -35,9 +35,16 @@ export const getKpis = () => get<Kpis>("/api/kpis");
 
 export interface ToolResult {
   tool: string;
-  rows: QueryRow[];
-  explain: QueryResult["explain"];
-  suggested_chart: QueryResult["suggested_chart"];
+  rows: Record<string, string | number | null>[];
+  explain: {
+    spec: Record<string, unknown>;
+    sql?: string;
+    filters_applied?: string[];
+    implicit_filters?: string[];
+    methodology?: string;
+    [key: string]: unknown;
+  };
+  suggested_chart: "line" | "bar" | "number" | "forecast" | "none";
 }
 
 export interface ChatResponse {

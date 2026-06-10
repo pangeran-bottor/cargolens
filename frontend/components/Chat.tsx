@@ -31,25 +31,45 @@ function ExplainPanel({ result }: { result: ToolResult }) {
       {open && (
         <div className="space-y-2 px-3 pb-3">
           <p>
-            <span className="font-medium">Tool:</span> {result.tool} ·{" "}
-            <span className="font-medium">Metric:</span>{" "}
-            {String(explain.spec.metric)} ·{" "}
-            <span className="font-medium">Grouped by:</span>{" "}
-            {String(explain.spec.group_by)}
+            <span className="font-medium">Tool:</span> {result.tool}
+            {explain.spec.metric != null && (
+              <>
+                {" "}· <span className="font-medium">Metric:</span>{" "}
+                {String(explain.spec.metric)} ·{" "}
+                <span className="font-medium">Grouped by:</span>{" "}
+                {String(explain.spec.group_by)}
+              </>
+            )}
+            {explain.entity != null && (
+              <>
+                {" "}· <span className="font-medium">Entity:</span>{" "}
+                {String(explain.entity)} ·{" "}
+                <span className="font-medium">Demand:</span>{" "}
+                {String(explain.demand_metric)}
+              </>
+            )}
           </p>
-          {explain.filters_applied.length > 0 && (
+          {(explain.filters_applied?.length ?? 0) > 0 && (
             <p>
               <span className="font-medium">Filters:</span>{" "}
-              {explain.filters_applied.join("; ")}
+              {explain.filters_applied!.join("; ")}
             </p>
           )}
-          {explain.implicit_filters.length > 0 && (
+          {(explain.implicit_filters?.length ?? 0) > 0 && (
             <p>
               <span className="font-medium">Built-in rules:</span>{" "}
-              {explain.implicit_filters.join("; ")}
+              {explain.implicit_filters!.join("; ")}
             </p>
           )}
-          <p className="font-mono text-[11px] text-slate-500">{explain.sql}</p>
+          {explain.methodology && (
+            <p>
+              <span className="font-medium">Methodology:</span>{" "}
+              {explain.methodology}
+            </p>
+          )}
+          {explain.sql && (
+            <p className="font-mono text-[11px] text-slate-500">{explain.sql}</p>
+          )}
           {result.rows.length > 0 && (
             <div className="max-h-48 overflow-auto rounded border border-slate-200 bg-white">
               <table className="w-full text-left text-[11px]">
