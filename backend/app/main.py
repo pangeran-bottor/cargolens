@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import ensure_seeded
+from .queries import QuerySpec, dataset_meta, kpis, run_query
 
 app = FastAPI(title="CargoLens API")
 
@@ -24,3 +25,18 @@ def startup() -> None:
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok"}
+
+
+@app.get("/api/meta")
+def meta() -> dict:
+    return dataset_meta()
+
+
+@app.get("/api/kpis")
+def get_kpis() -> dict:
+    return kpis()
+
+
+@app.post("/api/query")
+def query(spec: QuerySpec) -> dict:
+    return run_query(spec)
