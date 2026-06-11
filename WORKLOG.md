@@ -37,14 +37,15 @@ deploy dry run) and where the budget actually went.
 | 11:20 | Reviewer access-code gate (backend middleware + unlock UI), deployed and verified | 10:25–11:20 | 0.7h |
 | 11:29 | Final polish — `CLAUDE.md` (AI-collaboration guidance + vendored karpathy-guidelines skill) and this work log | 11:20–11:30 | 0.3h |
 | 12:28 | Review-pass improvements: documented concrete chat limits; persistent example questions covering all 3 intelligence levels; Markdown rendering for answers; future-improvements rewrite (observability, semantic layer) | 11:40–12:30 | 0.8h |
+| 12:35 | Pre-submission wrap-up: final verification sweep (live e2e, auth, secret scan), future improvements extended (CI/CD, LLM provider fallback) | 12:30–12:35 | 0.2h |
 
 ## Totals
 
 | Bucket | Hours |
 |---|---|
-| Build (Phases 0–7 + access gate + polish) | **~8.2h** |
+| Build (Phases 0–7 + access gate + polish) | **~8.4h** |
 | Build-day prep (plan review + deploy dry run) | ~1.25h |
-| **Total** | **~9.5h** (+ ~1h planning on day 0) |
+| **Total** | **~9.7h** (+ ~1h planning on day 0) |
 
 Inside the 6–10h expectation. The deploy dry run paid for itself:
 the production deploy took ~35 minutes because its three failure modes had
