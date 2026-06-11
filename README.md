@@ -202,8 +202,15 @@ historical/forecast line.
 - Query history and result caching (same validated spec → cached rows).
 - Evaluation harness: a fixed suite of NL questions scored nightly against
   the deterministic engine's ground truth (the live tests are the seed).
-- RAG over unstructured docs (carrier contracts, SLAs) — out of scope here
-  because this dataset has no unstructured corpus to retrieve from.
+- Observability for the AI layer: trace every conversation end-to-end
+  (question → tool calls → validated specs → answer) with token usage and
+  cost per query, via LangSmith or Langfuse. The explainability payload is
+  already the natural trace span — it would attach to traces as metadata.
+- A semantic layer over the dataset: a versioned catalog of business terms
+  and KPI definitions (e.g. "on-time rate", "completed orders", "demand")
+  that both the LLM prompt and the query engine read from one source, so
+  internal terminology resolves consistently and new metrics are defined
+  once, not in two places.
 
 ---
 
