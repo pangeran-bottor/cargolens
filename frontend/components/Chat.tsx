@@ -5,10 +5,30 @@ import { useRef, useState } from "react";
 import { askQuestion, ChatResponse, ToolResult } from "@/lib/api";
 import { DynamicChart } from "@/components/DynamicChart";
 
-const SUGGESTIONS = [
-  "Show delayed orders by week for the last 3 months",
-  "Which carrier has the highest delay rate?",
-  "How many orders were delivered late last month?",
+const SUGGESTIONS: { level: string; questions: string[] }[] = [
+  {
+    level: "Descriptive — what happened",
+    questions: [
+      "What is the on-time delivery rate?",
+      "Show order volume by month",
+      "Break down orders by region",
+    ],
+  },
+  {
+    level: "Diagnostic — why",
+    questions: [
+      "Show delayed orders by week for the last 3 months",
+      "Which carrier has the highest delay rate?",
+      "How many orders were delivered late last month?",
+    ],
+  },
+  {
+    level: "Predictive & prescriptive — what's next",
+    questions: [
+      "Predict demand for CRAYON for the next 4 months",
+      "How much inventory should I plan for paper products?",
+    ],
+  },
 ];
 
 interface Turn {
@@ -98,16 +118,61 @@ function ExplainPanel({ result }: { result: ToolResult }) {
   );
 }
 
+function ExampleQuestions({
+  open,
+  onToggle,
+  onPick,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  onPick: (q: string) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50">
+      <button
+        onClick={onToggle}
+        className="w-full px-3 py-2 text-left text-xs font-medium text-slate-600 hover:text-slate-900"
+      >
+        {open ? "▾" : "▸"} Example questions — three levels of intelligence
+      </button>
+      {open && (
+        <div className="space-y-3 px-3 pb-3">
+          {SUGGESTIONS.map(({ level, questions }) => (
+            <div key={level}>
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                {level}
+              </p>
+              <div className="space-y-1">
+                {questions.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => onPick(q)}
+                    className="block w-full rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-left text-xs text-slate-700 hover:border-blue-300 hover:bg-blue-50"
+                  >
+                    {q}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Chat() {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   async function submit(question: string) {
     if (!question.trim() || busy) return;
     setBusy(true);
     setInput("");
+    setShowExamples(false);
     setTurns((t) => [...t, { question, pending: true }]);
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     try {
@@ -147,21 +212,11 @@ export default function Chat() {
       </div>
 
       <div className="max-h-[32rem] space-y-4 overflow-y-auto p-4">
-        {turns.length === 0 && (
-          <div className="space-y-2">
-            <p className="text-sm text-slate-500">Try one of these:</p>
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                onClick={() => submit(s)}
-                className="block w-full rounded-lg border border-slate-200 px-3 py-2 text-left text-sm text-slate-700 hover:border-blue-300 hover:bg-blue-50"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
+        {turns.length === 0 && !showExamples && (
+          <p className="text-sm text-slate-500">
+            Ask a question below, or open the example questions.
+          </p>
         )}
-
         {turns.map((turn, i) => (
           <div key={i} className="space-y-2">
             <div className="ml-auto w-fit max-w-[85%] rounded-xl bg-blue-600 px-3 py-2 text-sm text-white">
@@ -193,8 +248,16 @@ export default function Chat() {
         <div ref={bottomRef} />
       </div>
 
+      <div className="border-t border-slate-200 p-3 pb-0">
+        <ExampleQuestions
+          open={showExamples}
+          onToggle={() => setShowExamples(!showExamples)}
+          onPick={submit}
+        />
+      </div>
+
       <form
-        className="flex gap-2 border-t border-slate-200 p-3"
+        className="flex gap-2 p-3"
         onSubmit={(e) => {
           e.preventDefault();
           submit(input);
