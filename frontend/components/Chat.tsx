@@ -1,9 +1,61 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { askQuestion, ChatResponse, ToolResult } from "@/lib/api";
 import { DynamicChart } from "@/components/DynamicChart";
+
+/** Compact Tailwind styling for model answers (rendered from Markdown). */
+const MD_COMPONENTS = {
+  p: (props: React.ComponentProps<"p">) => <p className="my-1.5" {...props} />,
+  strong: (props: React.ComponentProps<"strong">) => (
+    <strong className="font-semibold" {...props} />
+  ),
+  ul: (props: React.ComponentProps<"ul">) => (
+    <ul className="my-1.5 list-disc space-y-1 pl-5" {...props} />
+  ),
+  ol: (props: React.ComponentProps<"ol">) => (
+    <ol className="my-1.5 list-decimal space-y-1 pl-5" {...props} />
+  ),
+  h1: (props: React.ComponentProps<"h1">) => (
+    <p className="mt-2 mb-1 font-semibold" {...props} />
+  ),
+  h2: (props: React.ComponentProps<"h2">) => (
+    <p className="mt-2 mb-1 font-semibold" {...props} />
+  ),
+  h3: (props: React.ComponentProps<"h3">) => (
+    <p className="mt-2 mb-1 font-semibold" {...props} />
+  ),
+  h4: (props: React.ComponentProps<"h4">) => (
+    <p className="mt-2 mb-1 font-semibold" {...props} />
+  ),
+  blockquote: (props: React.ComponentProps<"blockquote">) => (
+    <blockquote
+      className="my-1.5 border-l-2 border-slate-300 pl-2 text-slate-600"
+      {...props}
+    />
+  ),
+  code: (props: React.ComponentProps<"code">) => (
+    <code className="rounded bg-slate-200 px-1 font-mono text-[12px]" {...props} />
+  ),
+  table: (props: React.ComponentProps<"table">) => (
+    <div className="my-1.5 overflow-x-auto">
+      <table className="w-full border-collapse text-xs" {...props} />
+    </div>
+  ),
+  th: (props: React.ComponentProps<"th">) => (
+    <th className="border border-slate-300 bg-slate-200 px-2 py-1 text-left" {...props} />
+  ),
+  td: (props: React.ComponentProps<"td">) => (
+    <td className="border border-slate-300 px-2 py-1" {...props} />
+  ),
+  a: (props: React.ComponentProps<"a">) => (
+    <a className="text-blue-600 underline" {...props} />
+  ),
+  hr: () => <hr className="my-2 border-slate-300" />,
+};
 
 const SUGGESTIONS: { level: string; questions: string[] }[] = [
   {
@@ -233,8 +285,10 @@ export default function Chat() {
               </div>
             )}
             {turn.response?.answer && (
-              <div className="w-fit max-w-[85%] whitespace-pre-wrap rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-800">
-                {turn.response.answer}
+              <div className="w-fit max-w-[85%] rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-800">
+                <Markdown remarkPlugins={[remarkGfm]} components={MD_COMPONENTS}>
+                  {turn.response.answer}
+                </Markdown>
               </div>
             )}
             {turn.response?.results.map((result, j) => (
