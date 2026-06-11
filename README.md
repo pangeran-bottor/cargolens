@@ -211,6 +211,15 @@ historical/forecast line.
   that both the LLM prompt and the query engine read from one source, so
   internal terminology resolves consistently and new metrics are defined
   once, not in two places.
+- CI/CD: GitHub Actions running the test suite (engine tests on every push;
+  live LLM tests gated behind a secret) and deploying to Railway on green
+  main — replacing the current CLI-driven deploys.
+- LLM provider resilience: route chat through a gateway such as OpenRouter
+  (or a thin in-house adapter) with a fallback model/provider chain, so a
+  single provider outage degrades to a slower model instead of taking the
+  chat down. The orchestrator already isolates the LLM behind one call
+  site, so this is a contained change — tool-calling fidelity across
+  providers would need the evaluation harness above to verify.
 
 ---
 
