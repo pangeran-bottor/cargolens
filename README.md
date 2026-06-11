@@ -51,7 +51,7 @@ npm run dev          # http://localhost:3000
 | `ACCESS_CODE` | backend | shared reviewer access code; all `/api/*` except `/api/health` require the `X-Access-Code` header | — (unset = open, for local dev) |
 | `FRONTEND_ORIGIN` | backend | CORS allowlist | `http://localhost:3000` |
 | `CHAT_MODEL` | backend | Claude model id | `claude-sonnet-4-6` |
-| `DAILY_CHAT_CAP` | backend | global daily LLM-call cap | `500` |
+| `DAILY_CHAT_CAP` | backend | global daily LLM-call cap | `500` (live deployment: `300`) |
 | `NEXT_PUBLIC_API_URL` | frontend | backend URL (baked at build time) | `http://localhost:8000` |
 
 ### Tests
@@ -184,8 +184,11 @@ historical/forecast line.
 - In-memory rate limiting and daily cap reset on redeploy and assume a single
   instance.
 - Auth is a single shared access code (sufficient for a review demo), layered
-  with per-IP rate limiting (10/min) and a global daily cap on the chat
-  endpoint. A real deployment would use per-user auth.
+  with abuse protection on the chat endpoint: **10 questions/minute per IP**
+  and a **global cap of 300 questions/day** on the live deployment (the
+  endpoint calls a paid LLM API). Exceeding either returns a friendly notice;
+  the dashboard is unaffected. A real deployment would use per-user auth and
+  quotas.
 - No streaming: answers arrive complete (a few seconds for chat).
 
 ## Future improvements
