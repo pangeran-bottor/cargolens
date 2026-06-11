@@ -1,6 +1,34 @@
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+const CODE_KEY = "cargolens_access_code";
+
+export function getAccessCode(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(CODE_KEY) ?? "";
+}
+
+export function saveAccessCode(code: string) {
+  localStorage.setItem(CODE_KEY, code);
+}
+
+export function clearAccessCode() {
+  localStorage.removeItem(CODE_KEY);
+}
+
+function authHeaders(): Record<string, string> {
+  const code = getAccessCode();
+  return code ? { "X-Access-Code": code } : {};
+}
+
+/** Probe the API with a code; true if accepted. */
+export async function verifyAccessCode(code: string): Promise<boolean> {
+  const res = await fetch(`${API_URL}/api/meta`, {
+    headers: { "X-Access-Code": code },
+  });
+  return res.ok;
+}
+
 export interface Kpis {
   total_orders: number;
   delivered_orders: number;
@@ -26,7 +54,7 @@ export interface QueryResult {
 }
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`);
+  const res = await fetch(`${API_URL}${path}`, { headers: authHeaders() });
   if (!res.ok) throw new Error(`${path} → ${res.status}`);
   return res.json();
 }
@@ -56,7 +84,7 @@ export interface ChatResponse {
 export async function askQuestion(question: string): Promise<ChatResponse> {
   const res = await fetch(`${API_URL}/api/chat`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ question }),
   });
   if (res.status === 429) {
@@ -73,7 +101,7 @@ export async function askQuestion(question: string): Promise<ChatResponse> {
 export async function runQuery(spec: object): Promise<QueryResult> {
   const res = await fetch(`${API_URL}/api/query`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify(spec),
   });
   if (!res.ok) throw new Error(`/api/query → ${res.status}`);

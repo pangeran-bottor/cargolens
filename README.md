@@ -3,6 +3,10 @@
 **Live app:** https://frontend-production-8d15.up.railway.app
 **API:** https://backend-production-4b4e.up.railway.app/api/health
 
+> 🔑 **Test credentials:** the live app is protected by a simple access code,
+> **provided separately with the submission** (not committed here — this repo
+> is public). Enter it once on the unlock screen; it is remembered locally.
+
 A full-stack analytics app over a logistics dataset (400 orders, calendar year
 2025) with two interfaces:
 
@@ -44,6 +48,7 @@ npm run dev          # http://localhost:3000
 | Variable | Service | Purpose | Default |
 |---|---|---|---|
 | `ANTHROPIC_API_KEY` | backend | LLM for the chat interface | — (chat degrades gracefully without it) |
+| `ACCESS_CODE` | backend | shared reviewer access code; all `/api/*` except `/api/health` require the `X-Access-Code` header | — (unset = open, for local dev) |
 | `FRONTEND_ORIGIN` | backend | CORS allowlist | `http://localhost:3000` |
 | `CHAT_MODEL` | backend | Claude model id | `claude-sonnet-4-6` |
 | `DAILY_CHAT_CAP` | backend | global daily LLM-call cap | `500` |
@@ -178,8 +183,9 @@ historical/forecast line.
   modeling; one year of history can't separate seasonality from noise.
 - In-memory rate limiting and daily cap reset on redeploy and assume a single
   instance.
-- No auth — the app is a public demo; the chat endpoint is protected by
-  per-IP rate limiting (10/min) and a global daily cap instead.
+- Auth is a single shared access code (sufficient for a review demo), layered
+  with per-IP rate limiting (10/min) and a global daily cap on the chat
+  endpoint. A real deployment would use per-user auth.
 - No streaming: answers arrive complete (a few seconds for chat).
 
 ## Future improvements

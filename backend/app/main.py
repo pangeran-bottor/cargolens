@@ -3,6 +3,7 @@ from datetime import date
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -25,6 +26,24 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+# Simple shared access code for reviewers. Unset = open (local dev).
+# /api/health stays open for Railway's healthcheck; OPTIONS passes through
+# because CORS preflights never carry custom headers.
+ACCESS_CODE = os.environ.get("ACCESS_CODE")
+
+
+@app.middleware("http")
+async def require_access_code(request: Request, call_next):
+    if (
+        ACCESS_CODE
+        and request.method != "OPTIONS"
+        and request.url.path.startswith("/api")
+        and request.url.path != "/api/health"
+        and request.headers.get("x-access-code") != ACCESS_CODE
+    ):
+        return JSONResponse({"detail": "Invalid or missing access code"}, status_code=401)
+    return await call_next(request)
 
 # Global daily cap on LLM calls: the chat endpoint is public and every call
 # costs money. In-memory is fine — single instance, resets on redeploy.
