@@ -2,8 +2,13 @@
 
 Reconstructed from git history (commit times = phase completions) plus session
 notes. Wall-clock windows include breaks; **active** is the honest estimate of
-hands-on time. Kept as part of the submission for transparency about effort
-and process.
+hands-on time.
+
+This log exists for two reasons: **transparency toward the reviewer** (honest
+effort accounting against the stated 6–10h expectation, alongside the AI-usage
+disclosure in the README) and **a self-audit** — keeping per-phase time and
+verification records makes it visible where the process was efficient (the
+deploy dry run) and where the budget actually went.
 
 ## Timeline
 
@@ -30,14 +35,15 @@ and process.
 | 10:20 | **Phase 6** — Railway deploy (both services), CORS + end-to-end verified live; Node-version build failure diagnosed and fixed | ~09:45–10:20 | 0.6h |
 | 10:22 | **Phase 7** — full README, AI-usage disclosure, secret scan, GitHub push | alongside P6 | 0.3h |
 | 11:20 | Reviewer access-code gate (backend middleware + unlock UI), deployed and verified | 10:25–11:20 | 0.7h |
+| 11:29 | Final polish — `CLAUDE.md` (AI-collaboration guidance + vendored karpathy-guidelines skill) and this work log | 11:20–11:30 | 0.3h |
 
 ## Totals
 
 | Bucket | Hours |
 |---|---|
-| Build (Phases 0–7 + access gate) | **~7.1h** |
+| Build (Phases 0–7 + access gate + polish) | **~7.4h** |
 | Build-day prep (plan review + deploy dry run) | ~1.25h |
-| **Total** | **~8.3h** (+ ~1h planning on day 0) |
+| **Total** | **~8.7h** (+ ~1h planning on day 0) |
 
 Comfortably inside the 6–10h expectation. The deploy dry run paid for itself:
 the production deploy took ~35 minutes because its three failure modes had
